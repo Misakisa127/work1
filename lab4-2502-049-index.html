@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图书商城 - 实验首页</title>
+    <link rel="stylesheet" href="lab2-2502-049-index.css">
+    <style>
+        /* 登录弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            width: 360px;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+        .tab {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #f1f1f1;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .tab button.active {
+            background: #3498db;
+            color: white;
+        }
+        .form-item {
+            margin-bottom: 15px;
+        }
+        .form-item label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-item input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 18px;
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .form-box {
+            display: none;
+        }
+        .form-box.show {
+            display: block;
+        }
+
+        /* 1. 热门图书动效：右移、阴影加深、放大 */
+        .book-item {
+            transition: all 0.3s ease;
+        }
+        .book-item:hover {
+            transform: translateX(5px) scale(1.03);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 2. 登录按钮动效：背景渐变+缩放 */
+        .login-btn {
+            background: #3498db;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .login-btn:hover {
+            background: linear-gradient(90deg, #3498db, #2980b9);
+            transform: scale(1.05);
+        }
+
+        /* 3. 轮播图动画：从下向上切换 */
+        .carousel {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .carousel img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            animation: slideUp 12s infinite;
+        }
+        .carousel img:nth-child(1) { animation-delay: 0s; }
+        .carousel img:nth-child(2) { animation-delay: 4s; }
+        .carousel img:nth-child(3) { animation-delay: 8s; }
+
+        @keyframes slideUp {
+            0% { opacity: 0; transform: translateY(100%); }
+            8% { opacity: 1; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(0); }
+            38% { opacity: 0; transform: translateY(-100%); }
+            100% { opacity: 0; transform: translateY(-100%); }
+        }
+
+        /* 4. 图标动效：购物车、搜索悬停旋转 */
+        .icon {
+            display: inline-block;
+            transition: transform 0.3s ease;
+        }
+        .icon:hover {
+            transform: rotate(360deg);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="logo">
+            <img src="lab23.jpg" alt="网站Logo">
+        </div>
+        <nav class="nav-menu">
+            <ul>
+                <li><a href="#">首页</a></li>
+                <li><a href="#">新书上市</a></li>
+                <li><a href="#">热门推荐</a></li>
+                <li><a href="#">关于我们</a></li>
+                <li><a href="javascript:void(0)" class="login-btn" id="loginBtn">登录</a></li>
+                <li><a href="#" class="icon">🛒</a></li>
+                <li><a href="#" class="icon">🔍</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- 登录注册弹窗 -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" id="closeBtn">×</span>
+            <div class="tab">
+                <button class="active" data-tab="login">登录</button>
+                <button data-tab="register">注册</button>
+            </div>
+
+            <div class="form-box show" id="loginForm">
+                <div class="form-item">
+                    <label>用户名</label>
+                    <input type="text" id="loginUser">
+                </div>
+                <div class="form-item">
+                    <label>密码</label>
+                    <input type="password" id="loginPwd">
+                </div>
+                <button class="btn" id="doLogin">登录</button>
+            </div>
+
+            <div class="form-box" id="registerForm">
+                <div class="form-item">
+                    <label>用户名</label>
+                    <input type="text" id="regUser">
+                </div>
+                <div class="form-item">
+                    <label>密码</label>
+                    <input type="password" id="regPwd">
+                </div>
+                <button class="btn" id="doRegister">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar-left">
+            <h3>图书分类</h3>
+            <ul>
+                <li><a href="#">悬疑小说</a></li>
+                <li><a href="#">文学小说</a></li>
+                <li><a href="#">历史社科</a></li>
+                <li><a href="#">轻小说</a></li>
+                <li><a href="#">心理学</a></li>
+                <li><a href="#">医学养生</a></li>
+                <li><a href="#">艺术设计</a></li>
+                <li><a href="#">少儿读物</a></li>
+            </ul>
+        </aside>
+
+        <main class="content-main">
+            <!-- 轮播图区域 -->
+            <div class="carousel">
+                <img src="lab21.jpg" alt="轮播1">
+                <img src="lab22.jpg" alt="轮播2">
+                <img src="lab25.jpg" alt="轮播3">
+            </div>
+
+            <h2>热门推荐</h2>
+            <div class="book-grid">
+                <div class="book-item">
+                    <img src="lab21.jpg" alt="图书封面">
+                    <h4>《another 2001》</h4>
+                    <p>￥59.00</p>
+                </div>
+                <div class="book-item">
+                    <img src="lab22.jpg" alt="图书封面">
+                    <h4>《我的青春恋爱喜剧果然有问题》</h4>
+                    <p>￥19.00</p>
+                </div>
+                <div class="book-item">
+                    <img src="lab25.jpg" alt="图书封面">
+                    <h4>《三体》</h4>
+                    <p>￥49.00</p>
+                </div>
+            </div>
+
+            <h2>新书上市</h2>
+            <div class="book-table">
+                <table border="1" cellpadding="8" cellspacing="0">
+                    <tr>
+                        <th>书名</th>
+                        <th>作者</th>
+                        <th>定价</th>
+                    </tr>
+                    <tr>
+                        <td>《HTML5+CSS3实战》</td>
+                        <td>张三</td>
+                        <td>￥45.00</td>
+                    </tr>
+                    <tr>
+                        <td>《JavaScript进阶》</td>
+                        <td>李四</td>
+                        <td>￥69.00</td>
+                    </tr>
+                </table>
+            </div>
+        </main>
+
+        <aside class="sidebar-right">
+            <h3>促销活动</h3>
+            <p>全场满100减30</p>
+            <p>新用户首单8折</p>
+            <p>满200元包邮</p>
+            <p>会员享双倍积分</p>
+            <p>每日限时秒杀</p>
+            <p>买两本送书签</p>
+        </aside>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeBtn = document.getElementById('closeBtn');
+
+        loginBtn.onclick = () => loginModal.style.display = 'block';
+        closeBtn.onclick = () => loginModal.style.display = 'none';
+
+        const tabs = document.querySelectorAll('.tab button');
+        tabs.forEach(tab => {
+            tab.onclick = () => {
+                document.querySelectorAll('.form-box').forEach(f => f.classList.remove('show'));
+                document.getElementById(tab.dataset.tab + 'Form').classList.add('show');
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            }
+        });
+
+        document.getElementById('doRegister').onclick = () => {
+            let user = document.getElementById('regUser').value.trim();
+            let pwd = document.getElementById('regPwd').value.trim();
+            if (!user || !pwd) return alert('请输入完整信息！');
+            localStorage.setItem('username', user);
+            localStorage.setItem('password', pwd);
+            alert('注册成功！');
+        };
+
+        document.getElementById('doLogin').onclick = () => {
+            let user = document.getElementById('loginUser').value.trim();
+            let pwd = document.getElementById('loginPwd').value.trim();
+            let localUser = localStorage.getItem('username');
+            let localPwd = localStorage.getItem('password');
+
+            if (user === localUser && pwd === localPwd) {
+                alert('登录成功！');
+                loginModal.style.display = 'none';
+            } else {
+                alert('用户名或密码错误！');
+            }
+        };
+    </script>
+
+</body>
+</html>
